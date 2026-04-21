@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#faf8f3"/>
+<title>Sacred Wisdom</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Nunito:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#faf8f3;
+  --linen:#f2ece0;
+  --gold:#c9a45a;
+  --gold-dim:#a88440;
+  --gold-light:#e8d49a;
+  --text:#2e2820;
+  --text-soft:#7a6e5e;
+  --text-faint:#b5a898;
+  --border:#e4dccf;
+  --white:#fff;
+  --shadow:0 4px 24px rgba(46,40,32,.08);
+  --radius:14px;
+}
+html,body{height:100%;overflow:hidden}
+body{
+  background:var(--cream);
+  font-family:'Nunito',sans-serif;
+  font-weight:400;color:var(--text);
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 10%,rgba(201,164,90,.08) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 70% at 85% 90%,rgba(90,138,114,.07) 0%,transparent 60%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── SCREENS ── */
+.screen{
+  position:fixed;inset:0;z-index:1;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  transition:opacity .35s ease,transform .35s ease;
+}
+.screen.hidden{opacity:0;pointer-events:none;transform:translateY(12px);}
+
+/* ── KEY SCREEN ── */
+#key-screen{align-items:center;justify-content:center;padding:32px 24px;overflow-y:auto;}
+.key-ornament{font-size:26px;color:var(--gold);letter-spacing:10px;opacity:.7;margin-bottom:20px;}
+.key-h1{
+  font-family:'Playfair Display',serif;font-size:clamp(28px,6vw,46px);
+  font-weight:400;text-align:center;line-height:1.25;
+}
+.key-h1 em{font-style:italic;color:var(--gold);}
+.key-sub{margin-top:12px;font-size:14px;color:var(--text-soft);text-align:center;max-width:400px;line-height:1.7;}
+.divider{width:50px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:28px auto;}
+.key-box{
+  width:100%;max-width:440px;background:var(--white);
+  border:1.5px solid var(--border);border-radius:18px;
+  padding:28px;box-shadow:var(--shadow);
+}
+.key-label{font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--text-soft);margin-bottom:10px;}
+.key-row{display:flex;gap:10px;}
+.key-input{
+  flex:1;padding:12px 14px;border:1.5px solid var(--border);
+  border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;
+  color:var(--text);background:var(--cream);outline:none;
+  transition:border-color .2s;
+}
+.key-input:focus{border-color:var(--gold);}
+.key-input::placeholder{color:var(--text-faint);}
+.gold-btn{
+  padding:12px 22px;
+  background:linear-gradient(135deg,#c9a45a,#a88440);
+  color:white;border:none;border-radius:10px;
+  font-family:'Playfair Display',serif;font-size:15px;
+  cursor:pointer;transition:all .25s;
+  box-shadow:0 3px 12px rgba(201,164,90,.35);
+  white-space:nowrap;
+}
+.gold-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 18px rgba(201,164,90,.45);}
+.gold-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.key-hint{margin-top:14px;font-size:12px;color:var(--text-faint);text-align:center;line-height:1.7;}
+.key-hint a{color:var(--gold-dim);text-decoration:none;}
+.key-hint a:hover{text-decoration:underline;}
+.key-error{margin-top:10px;font-size:13px;color:#b05050;text-align:center;}
+.key-loading{margin-top:10px;font-size:13px;color:var(--gold-dim);text-align:center;}
+
+/* ── HOME SCREEN ── */
+#home-screen{overflow-y:auto;}
+.home-inner{max-width:860px;margin:0 auto;padding-bottom:40px;}
+
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 24px 14px;gap:12px;flex-wrap:wrap;
+}
+.topbar-title{
+  font-family:'Playfair Display',serif;font-size:20px;
+  display:flex;align-items:center;gap:8px;
+}
+.topbar-title .sym{color:var(--gold);}
+.small-btn{
+  background:none;border:1px solid var(--border);border-radius:8px;
+  padding:6px 12px;font-family:'Nunito',sans-serif;font-size:12px;
+  color:var(--text-soft);cursor:pointer;transition:all .2s;
+}
+.small-btn:hover{background:var(--linen);}
+
+/* global search */
+.global-wrap{padding:0 24px 20px;}
+.global-label{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:13px;color:var(--text-faint);margin-bottom:10px;
+}
+.global-bar{
+  display:flex;align-items:center;gap:8px;
+  background:var(--white);border:1.5px solid var(--border);
+  border-radius:50px;padding:7px 7px 7px 20px;
+  box-shadow:var(--shadow);transition:border-color .2s;
+}
+.global-bar:focus-within{border-color:var(--gold);}
+.global-bar input{
+  flex:1;border:none;outline:none;background:transparent;
+  font-family:'Nunito',sans-serif;font-size:15px;color:var(--text);
+}
+.global-bar input::placeholder{color:var(--text-faint);}
+.icon-btn{
+  width:36px;height:36px;border-radius:50%;border:none;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .2s;font-size:16px;flex-shrink:0;
+}
+.icon-btn.outline{background:var(--linen);color:var(--text-soft);}
+.icon-btn.outline:hover{background:var(--gold-light);}
+.icon-btn.filled{
+  background:linear-gradient(135deg,#c9a45a,#a88440);
+  color:white;box-shadow:0 2px 10px rgba(201,164,90,.4);
+}
+.icon-btn.filled:hover:not(:disabled){transform:scale(1.08);}
+.icon-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.icon-btn.listening{background:var(--gold) !important;color:white;animation:pulse .8s ease infinite;}
+
+/* global response */
+.global-resp{
+  margin:0 24px 20px;background:var(--white);
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:18px 20px;box-shadow:var(--shadow);
+  animation:fadeUp .4s ease;
+}
+.resp-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.resp-text{font-size:14px;line-height:1.8;color:var(--text);}
+.resp-text p{margin-bottom:8px;}
+.resp-text p:last-child{margin-bottom:0;}
+
+/* dots typing */
+.dots{display:flex;gap:5px;align-items:center;padding:4px 0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--gold);animation:dotpulse 1.2s ease-in-out infinite;}
+.dot:nth-child(2){animation-delay:.2s;}
+.dot:nth-child(3){animation-delay:.4s;}
+
+/* section title */
+.section-title{
+  font-family:'Playfair Display',serif;font-size:16px;font-weight:400;
+  color:var(--text-soft);padding:0 24px;margin-bottom:14px;
+}
+
+/* scripture grid */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:12px;padding:0 24px 24px;
+}
+.scard{
+  border:1.5px solid var(--border);border-radius:var(--radius);
+  padding:16px;cursor:pointer;background:var(--white);
+  transition:all .22s;position:relative;overflow:hidden;
+  -webkit-tap-highlight-color:transparent;
+}
+.scard::before{
+  content:'';position:absolute;inset:0;
+  opacity:0;transition:opacity .22s;
+}
+.scard:hover::before{opacity:.5;}
+.scard.sel::before{opacity:1;}
+.scard.sel{box-shadow:0 0 0 3px rgba(0,0,0,.08);}
+.scard-inner{position:relative;z-index:1;}
+.scard-sym{font-size:22px;display:block;margin-bottom:6px;}
+.scard-trad{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);}
+.scard-name{font-family:'Playfair Display',serif;font-size:14px;color:var(--text);margin-top:4px;line-height:1.3;}
+.scard-check{
+  position:absolute;top:10px;right:10px;
+  width:18px;height:18px;border-radius:50%;
+  color:white;font-size:10px;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transform:scale(.4);transition:all .2s;z-index:2;
+}
+.scard.sel .scard-check{opacity:1;transform:scale(1);}
+
+/* begin btn */
+.begin-wrap{display:flex;justify-content:center;padding:8px 24px 16px;}
+.begin-btn{
+  padding:13px 50px;
+  background:linear-gradient(135deg,#c9a45a,#a88440);
+  color:white;border:none;border-radius:50px;
+  font-family:'Playfair Display',serif;font-size:19px;
+  cursor:pointer;transition:all .3s;
+  box-shadow:0 4px 18px rgba(201,164,90,.38);
+}
+.begin-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 26px rgba(201,164,90,.48);}
+.begin-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+
+/* ── CHAT SCREEN ── */
+#chat-screen{background:var(--cream);}
+.chat-header{
+  flex-shrink:0;padding:14px 20px 12px;
+  border-bottom:1px solid var(--border);
+  background:rgba(250,248,243,.95);
+  backdrop-filter:blur(14px);
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;
+}
+.chat-title{font-family:'Playfair Display',serif;font-size:19px;color:var(--text);}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.chip{
+  padding:3px 10px;border-radius:20px;font-size:11px;
+  font-weight:500;letter-spacing:.05em;border:1px solid;
+}
+.messages{
+  flex:1;overflow-y:auto;padding:24px 20px 12px;
+  display:flex;flex-direction:column;gap:20px;
+  scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+}
+.messages::-webkit-scrollbar{width:4px;}
+.messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.empty-chat{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:40px;gap:14px;
+}
+.empty-syms{font-size:34px;opacity:.35;letter-spacing:10px;}
+.empty-p{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:18px;color:var(--text-faint);
+  max-width:280px;line-height:1.55;
+}
+.msg-user{
+  align-self:flex-end;max-width:72%;
+  background:linear-gradient(135deg,rgba(201,164,90,.15),rgba(201,164,90,.07));
+  border:1px solid rgba(201,164,90,.35);
+  border-radius:18px 18px 4px 18px;
+  padding:12px 16px;font-size:15px;line-height:1.6;
+  animation:fadeUp .35s ease;
+}
+.msg-ai{align-self:flex-start;max-width:90%;animation:fadeUp .35s ease;}
+.msg-ai-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;padding-left:2px;}
+.msg-ai-bubble{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:4px 18px 18px 18px;
+  padding:16px 20px;font-size:15px;line-height:1.8;
+  box-shadow:0 2px 14px rgba(46,40,32,.05);
+}
+.msg-ai-bubble p{margin-bottom:9px;}
+.msg-ai-bubble p:last-child{margin-bottom:0;}
+.speak-btn{
+  margin-top:8px;margin-left:2px;
+  background:none;border:1px solid var(--border);border-radius:6px;
+  padding:4px 12px;font-size:12px;color:var(--text-soft);
+  cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:5px;
+  font-family:'Nunito',sans-serif;
+}
+.speak-btn:hover{background:var(--linen);}
+.speak-btn.speaking{background:var(--gold-light);border-color:var(--gold);}
+.typing-bubble{
+  align-self:flex-start;background:var(--white);
+  border:1px solid var(--border);border-radius:4px 18px 18px 18px;
+  padding:14px 20px;box-shadow:0 2px 14px rgba(46,40,32,.05);
+}
+
+/* input area */
+.input-area{
+  flex-shrink:0;padding:12px 20px 20px;
+  background:rgba(250,248,243,.96);
+  backdrop-filter:blur(14px);border-top:1px solid var(--border);
+}
+.input-row{display:flex;gap:10px;align-items:flex-end;}
+.input-wrap{flex:1;}
+.input-wrap textarea{
+  width:100%;padding:11px 15px;border:1.5px solid var(--border);
+  border-radius:var(--radius);background:var(--white);
+  font-family:'Nunito',sans-serif;font-size:15px;color:var(--text);
+  resize:none;outline:none;transition:border-color .2s;
+  line-height:1.5;min-height:46px;max-height:120px;overflow-y:auto;
+  display:block;
+}
+.input-wrap textarea:focus{border-color:var(--gold);}
+.input-wrap textarea::placeholder{color:var(--text-faint);}
+.input-hint{font-size:11px;color:var(--text-faint);text-align:center;margin-top:8px;}
+.input-voice{
+  width:44px;height:44px;border-radius:50%;
+  border:1.5px solid var(--border);background:var(--white);
+  color:var(--text-soft);display:flex;align-items:center;
+  justify-content:center;cursor:pointer;transition:all .2s;
+  font-size:18px;flex-shrink:0;
+}
+.input-voice:hover{background:var(--linen);}
+.input-voice.listening{background:var(--gold);border-color:var(--gold);color:white;animation:pulse .8s ease infinite;}
+.input-send{
+  width:44px;height:44px;border-radius:50%;border:none;
+  background:linear-gradient(135deg,#c9a45a,#a88440);
+  color:white;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .25s;font-size:20px;flex-shrink:0;
+  box-shadow:0 3px 14px rgba(201,164,90,.42);
+}
+.input-send:hover:not(:disabled){transform:translateY(-1px) scale(1.06);}
+.input-send:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes dotpulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.1)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(201,164,90,.5)}50%{box-shadow:0 0 0 8px rgba(201,164,90,0)}}
+</style>
+</head>
+<body>
+
+<!-- ══ KEY SCREEN ══ -->
+<div class="screen" id="key-screen">
+  <div style="display:flex;flex-direction:column;align-items:center;width:100%;max-width:520px;margin:0 auto;">
+    <div class="key-ornament">✦ ✦ ✦</div>
+    <h1 class="key-h1">Sacred <em>Wisdom</em></h1>
+    <p class="key-sub">Guidance from the world's holiest scriptures — in your language, at your pace.</p>
+    <div class="divider"></div>
+    <div class="key-box">
+      <div class="key-label">Your Free Gemini API Key</div>
+      <div class="key-row">
+        <input class="key-input" id="keyInput" type="password" placeholder="Paste your key here (AIza...)"/>
+        <button class="gold-btn" id="keyBtn" onclick="validateKey()">Enter ✦</button>
+      </div>
+      <div id="keyError" class="key-error" style="display:none"></div>
+      <div id="keyLoading" class="key-loading" style="display:none">Verifying key…</div>
+      <div class="key-hint">
+        Get your free key →
+        <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a><br/>
+        Sign in with Google → "Get API key" → Copy → Paste above.<br/>
+        No credit card. Completely free.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ HOME SCREEN ══ -->
+<div class="screen hidden" id="home-screen">
+  <div class="home-inner">
+
+    <!-- topbar -->
+    <div class="topbar">
+      <div class="topbar-title"><span class="sym">✦</span> Sacred Wisdom</div>
+      <button class="small-btn" onclick="logout()">Change Key</button>
+    </div>
+
+    <!-- global search -->
+    <div class="global-wrap">
+      <div class="global-label">Ask anything — wisdom from all scriptures</div>
+      <div class="global-bar">
+        <input id="globalInput" type="text" placeholder="e.g. I feel lost. How do I find peace?" onkeydown="if(event.key==='Enter')askGlobal()"/>
+        <button class="icon-btn outline" id="globalVoiceBtn" onclick="toggleGlobalVoice()" title="Speak">🎤</button>
+        <button class="icon-btn filled" id="globalSendBtn" onclick="askGlobal()" disabled>↑</button>
+      </div>
+    </div>
+
+    <!-- global response -->
+    <div class="global-resp" id="globalResp" style="display:none">
+      <div class="resp-label">✦ Wisdom from all scriptures</div>
+      <div id="globalRespBody"></div>
+    </div>
+
+    <!-- scripture selection -->
+    <div class="section-title">Or choose scriptures for a deeper conversation</div>
+    <div class="grid" id="scriptureGrid"></div>
+    <div class="begin-wrap">
+      <button class="begin-btn" id="beginBtn" disabled onclick="goChat()">Begin Deep Conversation</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ CHAT SCREEN ══ -->
+<div class="screen hidden" id="chat-screen">
+  <div class="chat-header">
+    <div>
+      <div class="chat-title">✦ Deep Conversation</div>
+      <div class="chips" id="chatChips"></div>
+    </div>
+    <button class="small-btn" onclick="goHome()">← Back</button>
+  </div>
+  <div class="messages" id="messages">
+    <div class="empty-chat" id="emptyChat">
+      <div class="empty-syms" id="emptySyms"></div>
+      <p class="empty-p">Share what's in your heart, or ask anything on your mind.</p>
+    </div>
+  </div>
+  <div class="input-area">
+    <div class="input-row">
+      <div class="input-wrap">
+        <textarea id="chatInput" rows="1" placeholder="Share how you're feeling…" onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+      </div>
+      <button class="input-voice" id="chatVoiceBtn" onclick="toggleChatVoice()" title="Speak">🎤</button>
+      <button class="input-send" id="chatSendBtn" onclick="sendMessage()" disabled>↑</button>
+    </div>
+    <div class="input-hint">Enter to send · Shift+Enter for new line · 🎤 to speak</div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────
+const SCRIPTURES = [
+  {id:"quran",  label:"Holy Quran",       tradition:"Islam",         sym:"☽", color:"#5a8a72", bg:"#eef5f1"},
+  {id:"bible",  label:"Holy Bible",        tradition:"Christianity",  sym:"✞", color:"#8a5a5a", bg:"#f5eeee"},
+  {id:"gita",   label:"Bhagavad Gita",     tradition:"Hinduism",      sym:"ॐ", color:"#8a7840", bg:"#f5f1e6"},
+  {id:"torah",  label:"Torah & Talmud",    tradition:"Judaism",       sym:"✡", color:"#4a6e88", bg:"#eef2f5"},
+  {id:"dhamma", label:"Dhammapada",        tradition:"Buddhism",      sym:"☸", color:"#6e5a8a", bg:"#f1eef5"},
+  {id:"granth", label:"Guru Granth Sahib", tradition:"Sikhism",       sym:"☬", color:"#8a6e40", bg:"#f5f0e6"},
+  {id:"tao",    label:"Tao Te Ching",      tradition:"Taoism",        sym:"☯", color:"#3d7878", bg:"#eef4f4"},
+  {id:"avesta", label:"The Avesta",        tradition:"Zoroastrianism",sym:"✺", color:"#8a6050", bg:"#f5efec"},
+];
+
+// ── STATE ─────────────────────────────────────────────────────────
+let apiKey = sessionStorage.getItem("sw_key") || "";
+let selected = [];
+let chatMessages = [];
+let isChatLoading = false;
+let speakingEl = null;
+let recognizer = null;
+let isListeningGlobal = false;
+let isListeningChat = false;
+
+// ── INIT ──────────────────────────────────────────────────────────
+window.onload = () => {
+  buildGrid();
+  if (apiKey) showScreen("home-screen");
+  else showScreen("key-screen");
+
+  document.getElementById("globalInput").addEventListener("input", e => {
+    document.getElementById("globalSendBtn").disabled = !e.target.value.trim();
+  });
+  document.getElementById("chatInput").addEventListener("input", e => {
+    document.getElementById("chatSendBtn").disabled = !e.target.value.trim();
+  });
+
+  // load voices for TTS
+  if (window.speechSynthesis) window.speechSynthesis.getVoices();
+};
+
+// ── SCREEN NAV ────────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+}
+function logout() {
+  sessionStorage.removeItem("sw_key");
+  apiKey = "";
+  showScreen("key-screen");
+}
+function goHome() {
+  stopSpeaking();
+  showScreen("home-screen");
+}
+function goChat() {
+  if (selected.length === 0) return;
+  chatMessages = [];
+  renderMessages();
+  buildChatChips();
+  showScreen("chat-screen");
+  document.getElementById("chatInput").focus();
+}
+
+// ── GEMINI API ────────────────────────────────────────────────────
+async function callGemini(system, messages) {
+  const contents = messages.map(m => ({
+    role: m.role === "assistant" ? "model" : "user",
+    parts: [{text: m.content}]
+  }));
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        system_instruction: {parts:[{text: system}]},
+        contents,
+        generationConfig: {maxOutputTokens: 1024, temperature: 0.85}
+      })
+    }
+  );
+
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({}));
+    throw new Error(e?.error?.message || "API error " + res.status);
+  }
+  const data = await res.json();
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error("Empty response from API.");
+  return text;
+}
+
+// ── KEY VALIDATION ────────────────────────────────────────────────
+async function validateKey() {
+  const k = document.getElementById("keyInput").value.trim();
+  if (!k) return;
+
+  document.getElementById("keyBtn").disabled = true;
+  document.getElementById("keyError").style.display = "none";
+  document.getElementById("keyLoading").style.display = "block";
+
+  apiKey = k;
+  try {
+    await callGemini("Reply with just 'ok'.", [{role:"user", content:"ok"}]);
+    sessionStorage.setItem("sw_key", k);
+    document.getElementById("keyLoading").style.display = "none";
+    showScreen("home-screen");
+  } catch(e) {
+    apiKey = "";
+    document.getElementById("keyLoading").style.display = "none";
+    document.getElementById("keyError").textContent = "Invalid key or connection error. Please check and try again.";
+    document.getElementById("keyError").style.display = "block";
+    document.getElementById("keyBtn").disabled = false;
+  }
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && document.getElementById("key-screen").classList.contains("hidden") === false) {
+    validateKey();
+  }
+});
+
+// ── GLOBAL ASK ────────────────────────────────────────────────────
+async function askGlobal(voiceText) {
+  const input = document.getElementById("globalInput");
+  const q = voiceText || input.value.trim();
+  if (!q) return;
+
+  input.value = "";
+  document.getElementById("globalSendBtn").disabled = true;
+
+  const system = `You are a compassionate interfaith scholar. The user asks a question about life, spirituality, or religion. Respond with warm wisdom drawn from multiple sacred traditions — Quran, Bible, Bhagavad Gita, Torah, Dhammapada, Guru Granth Sahib, Tao Te Ching, and others as relevant. Keep your answer heartfelt, thoughtful, and under 200 words. Write in flowing prose — no bullet points or headers.`;
+
+  const respEl = document.getElementById("globalResp");
+  const bodyEl = document.getElementById("globalRespBody");
+  respEl.style.display = "block";
+  bodyEl.innerHTML = '<div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+
+  try {
+    const reply = await callGemini(system, [{role:"user", content:q}]);
+    bodyEl.innerHTML = `<div class="resp-text">${formatText(reply)}</div>`;
+  } catch(e) {
+    bodyEl.innerHTML = `<div class="resp-text" style="color:#b05050">${e.message}</div>`;
+  }
+}
+
+// ── SCRIPTURE GRID ────────────────────────────────────────────────
+function buildGrid() {
+  const grid = document.getElementById("scriptureGrid");
+  grid.innerHTML = "";
+  SCRIPTURES.forEach(s => {
+    const div = document.createElement("div");
+    div.className = "scard";
+    div.id = "scard-" + s.id;
+    div.style.cssText = `--card-color:${s.color};--card-bg:${s.bg}`;
+    div.innerHTML = `
+      <div class="scard-inner">
+        <span class="scard-sym">${s.sym}</span>
+        <div class="scard-trad">${s.tradition}</div>
+        <div class="scard-name">${s.label}</div>
+      </div>
+      <div class="scard-check" style="background:${s.color}">✓</div>
+    `;
+    div.style.background = "var(--white)";
+    div.addEventListener("click", () => toggleScripture(s.id, s.color, s.bg));
+    grid.appendChild(div);
+  });
+}
+
+function toggleScripture(id, color, bg) {
+  const card = document.getElementById("scard-" + id);
+  if (selected.includes(id)) {
+    selected = selected.filter(x => x !== id);
+    card.classList.remove("sel");
+    card.style.background = "var(--white)";
+    card.style.borderColor = "var(--border)";
+  } else {
+    selected.push(id);
+    card.classList.add("sel");
+    card.style.background = bg;
+    card.style.borderColor = color;
+    card.style.boxShadow = `0 0 0 3px ${color}22`;
+  }
+  document.getElementById("beginBtn").disabled = selected.length === 0;
+}
+
+// ── CHAT CHIPS ────────────────────────────────────────────────────
+function buildChatChips() {
+  const chips = document.getElementById("chatChips");
+  const syms = document.getElementById("emptySyms");
+  chips.innerHTML = "";
+  syms.textContent = "";
+
+  selected.forEach(id => {
+    const s = SCRIPTURES.find(x => x.id === id);
+    if (!s) return;
+    const chip = document.createElement("span");
+    chip.className = "chip";
+    chip.style.cssText = `color:${s.color};border-color:${s.color}66;background:${s.bg}`;
+    chip.textContent = s.sym + " " + s.tradition;
+    chips.appendChild(chip);
+    syms.textContent += s.sym + " ";
+  });
+}
+
+// ── CHAT SYSTEM PROMPT ────────────────────────────────────────────
+function buildSystemPrompt() {
+  const names = selected.map(id => {
+    const s = SCRIPTURES.find(x => x.id === id);
+    return s ? `${s.label} (${s.tradition})` : "";
+  }).filter(Boolean).join(", ");
+
+  return `You are a compassionate, wise spiritual companion. The user has chosen guidance from: ${names}.
+
+When the user shares how they feel or asks a question:
+1. Acknowledge their feelings warmly in 1-2 sentences.
+2. For EACH chosen scripture, share a relevant teaching or verse — clearly labeled (e.g. "From the Quran:", "The Bible teaches:", "The Gita offers:", "The Torah says:").
+3. Each scripture: 2-3 sentences, poetic and meaningful.
+4. End with a brief unifying reflection (1-2 sentences).
+5. Write in flowing paragraphs. No bullet points, no markdown symbols.
+6. Tone: gentle, warm, timeless — like a wise elder speaking softly.`;
+}
+
+// ── SEND MESSAGE ──────────────────────────────────────────────────
+async function sendMessage(voiceText) {
+  if (isChatLoading) return;
+  const ta = document.getElementById("chatInput");
+  const msg = voiceText || ta.value.trim();
+  if (!msg) return;
+
+  ta.value = "";
+  ta.style.height = "auto";
+  document.getElementById("chatSendBtn").disabled = true;
+  document.getElementById("emptyChat").style.display = "none";
+
+  chatMessages.push({role:"user", content:msg});
+  renderMessages();
+  showTyping();
+  isChatLoading = true;
+
+  try {
+    const reply = await callGemini(buildSystemPrompt(), chatMessages);
+    chatMessages.push({role:"assistant", content:reply});
+  } catch(e) {
+    chatMessages.push({role:"assistant", content:"Could not reach the API: " + e.message});
+  } finally {
+    isChatLoading = false;
+    hideTyping();
+    renderMessages();
+    scrollBottom();
+  }
+}
+
+// ── RENDER MESSAGES ───────────────────────────────────────────────
+function renderMessages() {
+  const container = document.getElementById("messages");
+  // remove all message elements
+  container.querySelectorAll(".msg-user, .msg-ai").forEach(el => el.remove());
+
+  chatMessages.forEach((m, i) => {
+    if (m.role === "user") {
+      const div = document.createElement("div");
+      div.className = "msg-user";
+      div.textContent = m.content;
+      container.appendChild(div);
+    } else {
+      const wrap = document.createElement("div");
+      wrap.className = "msg-ai";
+
+      const label = document.createElement("div");
+      label.className = "msg-ai-label";
+      label.textContent = "✦ Wisdom from your scriptures";
+
+      const bubble = document.createElement("div");
+      bubble.className = "msg-ai-bubble";
+      bubble.innerHTML = formatText(m.content);
+
+      const speakBtnEl = document.createElement("button");
+      speakBtnEl.className = "speak-btn";
+      speakBtnEl.innerHTML = "🔊 Listen";
+      speakBtnEl.dataset.idx = i;
+      speakBtnEl.onclick = () => handleSpeak(i, m.content, speakBtnEl);
+
+      wrap.appendChild(label);
+      wrap.appendChild(bubble);
+      wrap.appendChild(speakBtnEl);
+      container.appendChild(wrap);
+    }
+  });
+  scrollBottom();
+}
+
+// ── TYPING INDICATOR ──────────────────────────────────────────────
+function showTyping() {
+  hideTyping();
+  const div = document.createElement("div");
+  div.className = "typing-bubble";
+  div.id = "typingBubble";
+  div.innerHTML = '<div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+  document.getElementById("messages").appendChild(div);
+  scrollBottom();
+}
+function hideTyping() {
+  const el = document.getElementById("typingBubble");
+  if (el) el.remove();
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────
+function formatText(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .split("\n")
+    .filter(l => l.trim())
+    .map(l => `<p>${l.trim()}</p>`)
+    .join("");
+}
+
+function scrollBottom() {
+  const msgs = document.getElementById("messages");
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function autoResize(el) {
+  el.style.height = "auto";
+  el.style.height = Math.min(el.scrollHeight, 120) + "px";
+}
+
+function handleChatKey(e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+// ── TEXT TO SPEECH ────────────────────────────────────────────────
+function handleSpeak(idx, text, btn) {
+  if (!window.speechSynthesis) { alert("Text-to-speech not supported in this browser."); return; }
+
+  if (speakingEl && speakingEl === btn) {
+    window.speechSynthesis.cancel();
+    btn.innerHTML = "🔊 Listen";
+    btn.classList.remove("speaking");
+    speakingEl = null;
+    return;
+  }
+
+  if (speakingEl) {
+    window.speechSynthesis.cancel();
+    speakingEl.innerHTML = "🔊 Listen";
+    speakingEl.classList.remove("speaking");
+    speakingEl = null;
+  }
+
+  const clean = text.replace(/[#*_~`]/g, "").substring(0, 700);
+  const utt = new SpeechSynthesisUtterance(clean);
+  utt.rate = 0.88; utt.pitch = 1; utt.volume = 1;
+
+  const voices = window.speechSynthesis.getVoices();
+  const preferred = voices.find(v => /samantha|karen|moira|daniel|serena|zira/i.test(v.name));
+  if (preferred) utt.voice = preferred;
+
+  btn.innerHTML = "⏹ Stop";
+  btn.classList.add("speaking");
+  speakingEl = btn;
+
+  utt.onend = utt.onerror = () => {
+    btn.innerHTML = "🔊 Listen";
+    btn.classList.remove("speaking");
+    if (speakingEl === btn) speakingEl = null;
+  };
+
+  window.speechSynthesis.speak(utt);
+}
+
+function stopSpeaking() {
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  if (speakingEl) {
+    speakingEl.innerHTML = "🔊 Listen";
+    speakingEl.classList.remove("speaking");
+    speakingEl = null;
+  }
+}
+
+// ── SPEECH RECOGNITION ────────────────────────────────────────────
+function getSpeechRec() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { alert("Voice input not supported in this browser. Try Chrome."); return null; }
+  const rec = new SR();
+  rec.lang = "en-US";
+  rec.interimResults = false;
+  rec.maxAlternatives = 1;
+  return rec;
+}
+
+function toggleGlobalVoice() {
+  if (isListeningGlobal) {
+    if (recognizer) recognizer.stop();
+    return;
+  }
+  const rec = getSpeechRec();
+  if (!rec) return;
+  recognizer = rec;
+  isListeningGlobal = true;
+  document.getElementById("globalVoiceBtn").classList.add("listening");
+
+  rec.onresult = e => {
+    const text = e.results[0][0].transcript;
+    document.getElementById("globalInput").value = text;
+    isListeningGlobal = false;
+    document.getElementById("globalVoiceBtn").classList.remove("listening");
+    askGlobal(text);
+  };
+  rec.onerror = rec.onend = () => {
+    isListeningGlobal = false;
+    document.getElementById("globalVoiceBtn").classList.remove("listening");
+  };
+  rec.start();
+}
+
+function toggleChatVoice() {
+  if (isListeningChat) {
+    if (recognizer) recognizer.stop();
+    return;
+  }
+  const rec = getSpeechRec();
+  if (!rec) return;
+  recognizer = rec;
+  isListeningChat = true;
+  document.getElementById("chatVoiceBtn").classList.add("listening");
+
+  rec.onresult = e => {
+    const text = e.results[0][0].transcript;
+    isListeningChat = false;
+    document.getElementById("chatVoiceBtn").classList.remove("listening");
+    sendMessage(text);
+  };
+  rec.onerror = rec.onend = () => {
+    isListeningChat = false;
+    document.getElementById("chatVoiceBtn").classList.remove("listening");
+  };
+  rec.start();
+}
+</script>
+</body>
+</html>
