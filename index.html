@@ -482,7 +482,7 @@ async function callGemini(system, messages) {
   }));
 
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-04-17:generateContent?key=${apiKey}`,
     {
       method: "POST",
       headers: {"Content-Type":"application/json"},
@@ -522,7 +522,7 @@ async function validateKey() {
   } catch(e) {
     apiKey = "";
     document.getElementById("keyLoading").style.display = "none";
-    document.getElementById("keyError").textContent = "Invalid key or connection error. Please check and try again.";
+    document.getElementById("keyError").textContent = "Error: " + e.message;
     document.getElementById("keyError").style.display = "block";
     document.getElementById("keyBtn").disabled = false;
   }
